@@ -1,11 +1,13 @@
-'''
-Tester:
-username = jpurdue
-password = boilerup
-'''
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Apr  7 15:42:58 2025
 
-from graphics import *
+@author: sarap
+"""
+
+from graphics import * 
 import tkinter as tk
+import webbrowser
 import csv
 import os
 
@@ -74,8 +76,13 @@ def load_users():
 # Save new user to file
 def save_user_to_csv(username, password, verification, vehicle):
     users = load_users()
-    if username in users:
-        return False
+
+    for user in users.values():
+        if (user["username"] == username and user["password"] == password and
+            user["verification"] == verification and user["vehicle"] == vehicle):
+            return "duplicate_credentials"
+        elif user["username"] == username:
+            return "duplicate_username"
 
     file_exists = os.path.isfile("users.csv")
     with open("users.csv", "a", newline="") as file:
@@ -89,7 +96,43 @@ def save_user_to_csv(username, password, verification, vehicle):
             "verification": verification,
             "vehicle": vehicle
         })
-    return True
+    return "success"
+
+
+# Forgot verification login logic
+def forgot_login_page():
+    win = GraphWin("Forgot Login", 400, 300)
+    center_window(win, 400, 300)
+    win.setCoords(0, 0, 400, 300)
+    win.setBackground("#cfb991")
+
+    code_box = draw_input_box(win, 200, 180, "Enter Verification Code:")
+
+    submit_btn = Rectangle(Point(100, 90), Point(300, 140))
+    submit_btn.setFill("#daaa00")
+    submit_btn.draw(win)
+    Text(submit_btn.getCenter(), "Submit").draw(win)
+
+    msg = Text(Point(200, 50), "")
+    msg.setSize(14)
+    msg.setTextColor("red")
+    msg.draw(win)
+
+    while True:
+        click = win.getMouse()
+        if inside(click, code_box):
+            code = get_input_in_box(win, code_box)
+        elif inside(click, submit_btn):
+            users = load_users()
+            found = False
+            for username, data in users.items():
+                if data["verification"] == code:
+                    win.close()
+                    blank_page(username)
+                    found = True
+                    break
+            if not found:
+                msg.setText("Incorrect code or no associated account.")
 
 # Login screen
 def login_page():
@@ -110,7 +153,15 @@ def login_page():
     login_text.setSize(14)
     login_text.draw(win)
 
-    back_btn = Rectangle(Point(100, 150), Point(300, 200))
+    forgot_btn = Rectangle(Point(100, 170), Point(300, 210))
+    forgot_btn.setFill("#8e6f3e")
+    forgot_btn.draw(win)
+    forgot_text = Text(forgot_btn.getCenter(), "Forgot Login")
+    forgot_text.setTextColor("white")
+    forgot_text.setSize(14)
+    forgot_text.draw(win)
+
+    back_btn = Rectangle(Point(100, 100), Point(300, 150))
     back_btn.setFill("#555960")
     back_btn.draw(win)
     back_text = Text(back_btn.getCenter(), "Back")
@@ -125,8 +176,6 @@ def login_page():
 
     username = ""
     password = ""
-    retry_btn = None
-    retry_text = None
 
     while True:
         click = win.getMouse()
@@ -142,28 +191,14 @@ def login_page():
                 break
             else:
                 error.setText("Invalid username or password.")
-                if retry_btn:
-                    retry_btn.undraw()
-                    retry_text.undraw()
-                retry_btn = Rectangle(Point(100, 100), Point(300, 130))
-                retry_btn.setFill("red")
-                retry_btn.draw(win)
-                retry_text = Text(retry_btn.getCenter(), "Retry")
-                retry_text.setTextColor("white")
-                retry_text.setSize(14)
-                retry_text.draw(win)
+        elif inside(click, forgot_btn):
+            win.close()
+            forgot_login_page()
+            break
         elif inside(click, back_btn):
             win.close()
-            main_menu()
+            main()
             break
-        elif retry_btn and inside(click, retry_btn):
-            error.setText("")
-            retry_btn.undraw()
-            retry_text.undraw()
-            username = ""
-            password = ""
-            username_box = draw_input_box(win, x, 450, "Username:")
-            password_box = draw_input_box(win, x, 350, "Password:")
 
 # Signup screen
 def signup_page():
@@ -218,12 +253,16 @@ def signup_page():
             vehicle = get_input_in_box(win, vehicle_box)
         elif inside(click, signup_btn):
             if username and password and verification and vehicle:
-                if save_user_to_csv(username, password, verification, vehicle):
-                    win.close()
-                    blank_page(username)
-                    break
-                else:
-                    error.setText("Username already exists.")
+                if username and password and verification and vehicle:
+                    result = save_user_to_csv(username, password, verification, vehicle)
+                    if result == "success":
+                        win.close()
+                        blank_page(username)
+                        break
+                    elif result == "duplicate_username":
+                        error.setText("Username already exists.")
+                elif result == "duplicate_credentials":
+                    error.setText("This exact account already exists.")
             else:
                 error.setText("All fields are required.")
                 if retry_btn:
@@ -238,7 +277,7 @@ def signup_page():
                 retry_text.draw(win)
         elif inside(click, back_btn):
             win.close()
-            main_menu()
+            main()
             break
         elif retry_btn and inside(click, retry_btn):
             error.setText("")
@@ -379,6 +418,13 @@ def show_blank_window(title, username):
 
     Text(Point(250, 250), f"{title} Content Goes Here").draw(win)
 
+    # Add "View Permit Site" button if on Parking Policy page
+    if title == "Parking Policy":
+        permit_btn = Rectangle(Point(150, 180), Point(350, 230))
+        permit_btn.setFill("#1a73e8")
+        permit_btn.draw(win)
+        Text(permit_btn.getCenter(), "View Permit Site").draw(win)
+
     back_btn = Rectangle(Point(150, 30), Point(350, 80))
     back_btn.setFill("#555960")
     back_btn.draw(win)
@@ -386,7 +432,9 @@ def show_blank_window(title, username):
 
     while True:
         click = win.getMouse()
-        if inside(click, back_btn):
+        if title == "Parking Policy" and inside(click, permit_btn):
+            webbrowser.open("https://purdue.t2hosted.com/Account/Portal")
+        elif inside(click, back_btn):
             win.close()
             blank_page(username)
             break
@@ -398,15 +446,15 @@ def main():
     win.setCoords(0, 0, 400, 500)
     win.setBackground("#ffe0b2")
 
-    Text(Point(200, 420), "Welcome to the BoilerParking!").draw(win)
+    Text(Point(200, 420), "Welcome to BoilerParking!").draw(win)
 
     login_btn = Rectangle(Point(100, 300), Point(300, 350))
     login_btn.setFill("#daaa00")
     login_btn.draw(win)
-    Text(login_btn.getCenter(), "Log In").draw(win)
+    Text(login_btn.getCenter(), "Login").draw(win)
 
-    signup_btn = Rectangle(Point(100, 220), Point(300, 270))
-    signup_btn.setFill("#555960")
+    signup_btn = Rectangle(Point(100, 200), Point(300, 250))
+    signup_btn.setFill("#0f9d58")
     signup_btn.draw(win)
     Text(signup_btn.getCenter(), "Sign Up").draw(win)
 
