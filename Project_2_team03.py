@@ -1,10 +1,11 @@
-#Team: 03
-#Authors:
- #   Jake Fisher
-  #  Sara Pineda
-    #Kean Tean
-   # Suraj Pilla
-
+'''
+Team: 03
+Authors:
+ Jake Fisher
+ Sara Pineda
+ Kean Tean
+ Suraj Pilla
+'''
 import math
 import robotbit_library as r
 from microbit import *
