@@ -1,3 +1,9 @@
+'''
+Tester:
+username = jpurdue
+password = boilerup
+'''
+
 from graphics import *
 import tkinter as tk
 import csv
