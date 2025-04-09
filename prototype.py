@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 """
 Created on Mon Apr  7 15:42:58 2025
@@ -412,20 +413,38 @@ def blank_page(username):
 
 # Shows empty screen for other sections
 def show_blank_window(title, username):
-    win = GraphWin(title, 500, 300)
-    center_window(win, 500, 300)
+    win = GraphWin(title, 600, 600)
+    center_window(win, 600, 600)
     win.setBackground("white")
 
-    Text(Point(250, 250), f"{title} Content Goes Here").draw(win)
+    Text(Point(300, 570), f"{title} Content Goes Here").draw(win)
 
     # Add "View Permit Site" button if on Parking Policy page
     if title == "Parking Policy":
-        permit_btn = Rectangle(Point(150, 180), Point(350, 230))
+        permit_btn = Rectangle(Point(200, 520), Point(400, 560))
         permit_btn.setFill("#1a73e8")
         permit_btn.draw(win)
         Text(permit_btn.getCenter(), "View Permit Site").draw(win)
+ 
+        permit_info = [
+            "Student Permits",
+            "1. “C” Permit - $100/year - C lots on campus edges",
+            "2. Student Garage Permit - includes garage + C lots",
+            "",
+            "Faculty & Staff Permits",
+            "1. “A” Permit - $250/year - A, AB, ABC lots",
+            "2. “B” Permit - $100/year - AB, ABC lots",
+            "3. “ID” Permit - $20/year - limited hours in A/AB/ABC",
+            "4. Reserved Permit - $1000/year - reserved spaces"
+            ]   
+        y = 300
+        for line in permit_info:
+            text = Text(Point(300, y), line)
+            text.setSize(10)
+            text.draw(win)
+            y += 20 
 
-    back_btn = Rectangle(Point(150, 30), Point(350, 80))
+    back_btn = Rectangle(Point(200, 180), Point(400, 220))
     back_btn.setFill("#555960")
     back_btn.draw(win)
     Text(back_btn.getCenter(), "Back").draw(win)
