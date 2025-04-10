@@ -57,7 +57,8 @@ if s == "O":
     grid_map[1][0] = 2
     grid_map[2][2] = 2
 if s == "X":
-    display.show("No spots open!")
+    display.show("No spots open!")                   # receive direction command
+
 
 def wavefrontSearch():
     
@@ -140,26 +141,13 @@ def navigateToGoal():
 
         if grid_map[x][y] == 2:
             break
-def main():
-    s = radio.receive()                    # receive direction command
 
-    if s == "L":
-        grid_map[1][0] = 2
-        grid_map[2][2] = 1
-        display.show("O")
-    if s == "R":
-        grid_map[2][2] = 2
-    if s == "O":
-        grid_map[1][0] = 2
-        grid_map[2][2] = 2
-    if s == "X":
-        display.show("No spots open!")
-    sleep(1000)
-    print(grid_map)
-    wavefrontSearch()
-    navigateToGoal()
+    
+sleep(1000)
+print(grid_map)
+wavefrontSearch()
+navigateToGoal()
 
 while True:
     sleep(1000)
 
-main()
