@@ -9,6 +9,34 @@ import tkinter as tk
 import webbrowser
 import csv
 import os
+import datetime
+
+
+def log_account_activity(username, action):
+    """Logs full account info + activity into account_activity.csv."""
+    users = load_users()
+    if username not in users:
+        return  # just in case
+
+    user = users[username]
+    file_path = "account_activity.csv"
+    file_exists = os.path.exists(file_path)
+
+    with open(file_path, "a", newline="") as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(["username", "action", "timestamp", "password", "verification", "vehicle", "classification"])
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        writer.writerow([
+            username,
+            action,
+            timestamp,
+            user["password"],
+            user["verification"],
+            user["vehicle"],
+            user["identity"]  # or change to 'role' or 'classification' if renamed
+        ])
+
 
 # Put the window in the center of the screen
 def center_window(win, width, height):
@@ -176,6 +204,7 @@ def signup_page():
             if username and password and verification and vehicle and selected_identity:
                 result = save_user_to_csv(username, password, verification, vehicle, selected_identity)
                 if result == "success":
+                    log_account_activity(username, "signup")  # <--- Add this line
                     win.close()
                     blank_page(username)
                     break
@@ -225,6 +254,7 @@ def login_page():
         elif inside(click, login_btn):
             users = load_users()
             if username in users and users[username]["password"] == password:
+                log_account_activity(username, "login")  # <--- Add this line
                 win.close()
                 blank_page(username)
                 break
@@ -310,7 +340,9 @@ def edit_account_info(username):
                 del users[old_username]
             users[user["username"]] = user
             save_all_users(users)
+            log_account_activity(user["username"], "updated info")  
             old_username = user["username"]
+
         elif inside(click, back_btn):
             win.close()
             blank_page(user["username"])
@@ -426,3 +458,4 @@ def main():
 # Run the program
 if __name__ == "__main__":
     main()
+
