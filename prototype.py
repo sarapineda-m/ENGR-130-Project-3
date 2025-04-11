@@ -10,6 +10,7 @@ import webbrowser
 import csv
 import os
 import datetime
+import random
 
 
 def log_account_activity(username, action):
@@ -38,60 +39,66 @@ def log_account_activity(username, action):
         ])
 
 
-# Put the window in the center of the screen
-def center_window(win, width, height):
+from graphics import *
+import tkinter as tk
+import csv
+import os
+import datetime
+import random
+import webbrowser
+
+# center the graphics window
+def center_window(win, w, h):
     root = tk.Tk()
     root.withdraw()
-    screen_w = root.winfo_screenwidth()
-    screen_h = root.winfo_screenheight()
+    sw = root.winfo_screenwidth()
+    sh = root.winfo_screenheight()
     root.destroy()
-    x = (screen_w - width) // 2
-    y = (screen_h - height) // 2
-    win.master.geometry(f"{width}x{height}+{x}+{y}")
+    x = (sw - w) // 2
+    y = (sh - h) // 2
+    win.master.geometry(str(w) + "x" + str(h) + "+" + str(x) + "+" + str(y))
 
-def get_input_in_box(win, box, is_password=False):
-    text = ""
-    display = Text(box.getCenter(), "")
-    display.setSize(16)
-    display.setTextColor("black")
-    display.draw(win)
+# check if click is in box
+def inside(p, box):
+    x1 = box.getP1().getX()
+    y1 = box.getP1().getY()
+    x2 = box.getP2().getX()
+    y2 = box.getP2().getY()
+    return x1 <= p.getX() <= x2 and y1 <= p.getY() <= y2
 
-    # Wait for initial click inside the box
-    while True:
-        click = win.getMouse()
-        if inside(click, box):
-            break
-
-    display.setText("")  # Clear display text when clicked
-
-    # Now collect keyboard input without needing more mouse clicks
-    while True:
-        key = win.getKey()
-        if key == "Return":
-            break
-        elif key == "BackSpace":
-            text = text[:-1]
-        elif len(key) == 1:
-            text += key
-        display.setText("*" * len(text) if is_password else text)
-
-    return text
-
-# Draw input box and label
+# draw label and input box
 def draw_input_box(win, x, y, label):
-    label_text = Text(Point(x, y + 60), label)
-    label_text.setSize(16)
-    label_text.setTextColor("black")
-    label_text.draw(win)
+    Text(Point(x, y + 60), label).draw(win)
     box = Rectangle(Point(x - 140, y), Point(x + 140, y + 50))
     box.setFill("white")
     box.draw(win)
     return box
 
-# Check if mouse click is inside a rectangle
-def inside(click, rect):
-    return rect.getP1().getX() <= click.getX() <= rect.getP2().getX() and \
-           rect.getP1().getY() <= click.getY() <= rect.getP2().getY()
+# get typed input
+def get_input_in_box(win, box, is_pass=False):
+    user_text = ""
+    output = Text(box.getCenter(), "")
+    output.setSize(16)
+    output.draw(win)
+
+    while True:
+        click = win.getMouse()
+        if inside(click, box):
+            break
+
+    output.setText("")
+
+    while True:
+        key = win.getKey()
+        if key == "Return":
+            break
+        elif key == "BackSpace":
+            user_text = user_text[:-1]
+        elif len(key) == 1:
+            user_text += key
+        output.setText("*" * len(user_text) if is_pass else user_text)
+
+    return user_text
 
 # Load users from file
 def load_users():
@@ -347,7 +354,87 @@ def edit_account_info(username):
             win.close()
             blank_page(user["username"])
             break
-        
+
+def show_navigation_window(username):
+    win = GraphWin("Garage Navigation", 600, 600)
+    center_window(win, 600, 600)
+    win.setBackground("#cfb991")
+
+    garages = [
+        ("Grant Street Garage", 100),
+        ("University Street Garage", 180),
+        ("Wood Street Garage", 260),
+        ("Harrison Street Garage", 340),
+        ("McCutcheon Garage", 420)
+    ]
+
+    buttons = []
+    for name, y in garages:
+        btn = Rectangle(Point(100, y), Point(500, y + 40))
+        btn.setFill("#0f9d58")
+        btn.draw(win)
+        Text(btn.getCenter(), name).draw(win)
+        buttons.append((btn, name))
+
+    # Back button
+    back_btn = Rectangle(Point(200, 500), Point(400, 550))
+    back_btn.setFill("#555960")
+    back_btn.draw(win)
+    Text(back_btn.getCenter(), "Back").draw(win)
+
+    while True:
+        click = win.getMouse()
+        if inside(click, back_btn):
+            win.close()
+            blank_page(username)
+            break
+        for btn, name in buttons:
+            if inside(click, btn):
+                win.close()
+                show_garage_info_window(username, name)
+                return
+
+def show_garage_info_window(user, garage_name):
+    win = GraphWin(garage_name, 500, 400)
+    center_window(win, 500, 400)
+    win.setBackground("#cfb991")
+
+    title = Text(Point(250, 50), garage_name)
+    title.setSize(20)
+    title.draw(win)
+
+    garage_info = {
+        "Grant Street Garage": "C, A, Staff",
+        "University Street Garage": "C, A",
+        "Wood Street Garage": "C only",
+        "Harrison Street Garage": "C, Staff",
+        "McCutcheon Garage": "All permits"
+    }
+
+    if garage_name in garage_info:
+        if garage_name in garage_info:
+            permits = garage_info[garage_name]
+        else:
+            permits = "Unknown"
+        spots = random.randint(15, 70)
+        Text(Point(250, 150), "Available Spots: " + str(spots)).draw(win)
+        Text(Point(250, 200), "Permits Allowed: " + permits).draw(win)
+    else:
+        Text(Point(250, 150), "No data found").draw(win)
+
+    back_btn = Rectangle(Point(150, 300), Point(350, 350))
+    back_btn.setFill("#555960")
+    back_btn.draw(win)
+    Text(back_btn.getCenter(), "Back").draw(win)
+
+    while True:
+        click = win.getMouse()
+        if inside(click, back_btn):
+            win.close()
+            show_navigation_window(user)
+            break
+
+
 # Blank dashboard
 def blank_page(username):
     win = GraphWin("Dashboard", 600, 400)
@@ -373,7 +460,7 @@ def blank_page(username):
             break
         elif inside(click, nav_btn):
             win.close()
-            show_blank_window("Navigation", username)
+            show_navigation_window(username)
         elif inside(click, edit_btn):
             win.close()
             edit_account_info(username)
