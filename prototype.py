@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """
 Created on Thu Apr 10 19:06:00 2025
@@ -148,18 +147,7 @@ def signup_page():
     password_box = draw_input_box(win, x, 500, "Password:")
     verification_box = draw_input_box(win, x, 400, "Set Verification Code:")
     vehicle_box = draw_input_box(win, x, 300, "Vehicle Number:")
-    identity_label = Text(Point(x, 260), "Select Identity:")
-    identity_label.setSize(14)
-    identity_label.draw(win)
-    student_btn = Rectangle(Point(100, 220), Point(190, 250))
-    student_btn.setFill("#fbbc05")
-    student_btn.draw(win)
-    Text(student_btn.getCenter(), "Student").draw(win)
-    teacher_btn = Rectangle(Point(210, 220), Point(300, 250))
-    teacher_btn.setFill("#fbbc05")
-    teacher_btn.draw(win)
-    Text(teacher_btn.getCenter(), "Faculty").draw(win)
-    selected_identity = ""
+    identity_box = draw_input_box(win, x, 220, "Classification:")
     signup_btn = Rectangle(Point(100, 150), Point(300, 200))
     signup_btn.setFill("#daaa00")
     signup_btn.draw(win)
@@ -182,14 +170,8 @@ def signup_page():
             verification = get_input_in_box(win, verification_box)
         elif inside(click, vehicle_box):
             vehicle = get_input_in_box(win, vehicle_box)
-        elif inside(click, student_btn):
-            selected_identity = "Student"
-            student_btn.setFill("green")
-            teacher_btn.setFill("#fbbc05")
-        elif inside(click, teacher_btn):
-            selected_identity = "Faculty"
-            teacher_btn.setFill("green")
-            student_btn.setFill("#fbbc05")
+        elif inside(click, identity_box):
+            selected_identity = get_input_in_box(win, identity_box)
         elif inside(click, signup_btn):
             if username and password and verification and vehicle and selected_identity:
                 result = save_user_to_csv(username, password, verification, vehicle, selected_identity)
@@ -343,10 +325,10 @@ def blank_page(username):
     policy_btn.setFill("#4285f4")
     policy_btn.draw(win)
     Text(policy_btn.getCenter(), "Parking Policy").draw(win)
-    map_btn = Rectangle(Point(100, 150), Point(500, 200))
-    map_btn.setFill("#0f9d58")
-    map_btn.draw(win)
-    Text(map_btn.getCenter(), "Google Map").draw(win)
+    nav_btn = Rectangle(Point(100, 150), Point(500, 200))
+    nav_btn.setFill("#0f9d58")
+    nav_btn.draw(win)
+    Text(nav_btn.getCenter(), "Navigation").draw(win)
     edit_btn = Rectangle(Point(100, 50), Point(500, 100))
     edit_btn.setFill("#fbbc05")
     edit_btn.draw(win)
@@ -357,10 +339,9 @@ def blank_page(username):
             win.close()
             show_blank_window("Parking Policy", username)
             break
-        elif inside(click, map_btn):
+        elif inside(click, nav_btn):
             win.close()
-            show_blank_window("Google Map", username)
-            break
+            show_blank_window("Navigation", username)
         elif inside(click, edit_btn):
             win.close()
             edit_account_info(username)
