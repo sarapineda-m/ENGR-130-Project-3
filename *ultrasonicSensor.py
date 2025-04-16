@@ -1,4 +1,4 @@
-# The micro:bit sensor code is used to connect to the Spyder GUI app.
+# The micro:bit sensor code is used to connect to the Spyder GUI app.mIt sends parking spot availability status (O, L, R, X) over USB serial.
 
 from microbit import *
 from time import sleep_us
