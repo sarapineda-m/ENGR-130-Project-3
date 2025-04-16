@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from graphics import *  # for GUI drawing
 import tkinter as tk    # for centering windows
 import webbrowser       # to open URLs
@@ -6,6 +5,25 @@ import csv              # to read/write user data
 import os               # to check if file exists
 import datetime         # to log time
 import random           # to show fake parking spots
+import serial
+import serial.tools.list_ports
+
+
+ports = serial.tools.list_ports.comports()
+for port in ports:
+    print(port.device, port.description)
+
+def read_sensor_status():
+    try:
+        ser = serial.Serial("COM5", 115200, timeout=1)  # Use your confirmed port
+        line = ser.readline().decode().strip()
+        ser.close()
+        if line in ["O", "L", "R", "X"]:
+            return line
+        return "O"
+    except:
+        return "O"
+
 
 # makes window show in center of screen
 def center_window(win, width, height):
@@ -419,7 +437,22 @@ def show_garage_info_window(user, garage_name):
         "McCutcheon Garage": "All permits"
     }
 
-    if garage_name in garage_info:
+    if garage_name == "Grant Street Garage":
+        sensor_status = read_sensor_status()
+
+
+        # Begin with 50 spots
+        available = 50
+
+        if sensor_status == "X":
+            available -= 2
+        elif sensor_status in ["L", "R"]:
+            available -= 1
+        # If "O", don't subtract
+
+        Text(Point(250, 150), "Available Spots: " + str(available)).draw(win)
+        Text(Point(250, 200), "Permits Allowed: " + garage_info[garage_name]).draw(win)
+    elif garage_name in garage_info:
         permits = garage_info[garage_name]
         spots = random.randint(15, 70)
         Text(Point(250, 150), "Available Spots: " + str(spots)).draw(win)
@@ -438,6 +471,7 @@ def show_garage_info_window(user, garage_name):
             win.close()
             show_navigation_window(user)
             break
+
 
 # shows parking policy info or other blank pages
 def show_blank_window(title, username):
