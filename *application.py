@@ -1,3 +1,17 @@
+# ===============================
+# BoilerParking GUI - Notes & Tips
+# ===============================
+
+# - This code is beginner-friendly and not fully optimized.
+# - Some windows (especially Grant Street Garage) take time to load.
+# - Input boxes may require multiple clicks before typing is detected.
+# - You must press "Enter" after typing in each input box.
+# - Sometimes pressing Enter more than once is needed.
+# - If you already hit Enter and try to retype, your new text will appear under the old one.
+# - Some buttons may need to be clicked more than once to register.
+# - When creating an account, there is no confirmation message.
+# - You must go back to the login screen and try logging in to check if it worked.
+
 from graphics import *  # for GUI drawing
 import tkinter as tk    # for centering windows
 import webbrowser       # to open URLs
