@@ -1,4 +1,4 @@
-#This code connects the sensor and the app (aka spyder code)
+# The micro:bit sensor code is used to connect to the Spyder GUI app.
 
 from microbit import *
 from time import sleep_us
