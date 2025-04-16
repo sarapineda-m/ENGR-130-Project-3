@@ -11,6 +11,8 @@
 # - Some buttons may need to be clicked more than once to register.
 # - When creating an account, there is no confirmation message.
 # - You must go back to the login screen and try logging in to check if it worked.
+#
+# **We asked ChatGPT to help us understand how to connect the sensor (micro:bit) to the Spyder Python GUI**
 
 from graphics import *  # for GUI drawing
 import tkinter as tk    # for centering windows
